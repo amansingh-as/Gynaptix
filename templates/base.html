@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gynaptix</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+   
+    <style>
+        body {
+            background-color: #f5f7fa;
+        }
+        .sidebar {
+            height: 100vh;
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+        }
+        .sidebar a {
+            color: white;
+            display: block;
+            margin: 10px 0;
+            text-decoration: none;
+        }
+        .sidebar a:hover {
+            background: #34495e;
+            padding-left: 10px;
+        }
+        .content {
+            padding: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+
+        <!-- Sidebar -->
+        <div class="col-2 sidebar">
+            <h3>Gynaptix</h3>
+            <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+            <a href="{% url 'patient_list' %}">Patients</a>
+            <a href="{% url 'doctor_dashboard' %}">Doctors</a>
+            <a href="{% url 'report_list' %}">Reports</a>
+            <a href="{% url 'appointment_list' %}">Appointments</a>
+            <a href="/chatbot/" class="dashboard-card chatbot-card">
+            Chatbot Assistant
+            </a>
+
+            <a href="{% url 'home' %}" class="back-btn">Back to Home</a>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-10 content">
+           <div class="container-fluid">
+             {% block content %}
+             {% endblock %}
+         </div>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

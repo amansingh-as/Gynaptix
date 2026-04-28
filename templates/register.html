@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Gynaptix Register</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --navy-deep: #030d1a;
+    --navy-dark: #061428;
+    --navy-mid: #0a2140;
+    --navy-light: #0d3060;
+    --sky-bright: #00b4e6;
+    --sky-mid: #0090c4;
+    --sky-light: #38d4f5;
+    --text-muted: #7ba8c4;
+    --text-dim: #4a7a99;
+    --glass-bg: rgba(10, 33, 64, 0.7);
+    --glass-border: rgba(0, 180, 230, 0.2);
+    --input-bg: rgba(3, 20, 45, 0.8);
+    --error-red: #ff5c6a;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    height: 100vh;
+    overflow: hidden;
+    background: var(--navy-deep);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* BACKGROUND (same as login) */
+.bg-scene {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+}
+
+.bg-scene::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse 80% 60% at 10% 90%, rgba(0, 90, 160, 0.35), transparent 60%),
+        radial-gradient(ellipse 60% 50% at 90% 10%, rgba(0, 180, 230, 0.2), transparent 55%),
+        radial-gradient(ellipse 100% 100% at 50% 50%, #030d1a, #061428);
+}
+
+.grid-lines {
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(0, 180, 230, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 180, 230, 0.04) 1px, transparent 1px);
+    background-size: 50px 50px;
+    animation: gridShift 20s linear infinite;
+}
+
+@keyframes gridShift {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(50px); }
+}
+
+/* CARD */
+.wrapper {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    max-width: 440px;
+}
+
+.card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(24px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 44px 40px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+}
+
+/* BRAND */
+.brand {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.brand-icon {
+    font-size: 34px;
+    margin-bottom: 10px;
+}
+
+.brand-name {
+    font-family: 'Outfit', sans-serif;
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    background: linear-gradient(135deg, #fff, var(--sky-light), var(--sky-bright));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.brand-tagline {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+}
+
+/* DIVIDER */
+.divider {
+    text-align: center;
+    margin: 20px 0;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+}
+
+/* FORM */
+form p {
+    margin-bottom: 18px;
+}
+
+form label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+}
+
+input {
+    width: 100%;
+    padding: 13px;
+    background: var(--input-bg);
+    border: 1px solid rgba(0,180,230,0.2);
+    border-radius: 12px;
+    color: white;
+}
+
+input:focus {
+    border-color: var(--sky-bright);
+    box-shadow: 0 0 0 3px rgba(0,180,230,0.15);
+}
+
+/* BUTTON */
+button {
+    width: 100%;
+    padding: 14px;
+    margin-top: 10px;
+    background: linear-gradient(135deg, var(--sky-mid), var(--sky-bright));
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+/* FOOTER */
+.footer {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 13px;
+    color: var(--text-dim);
+}
+
+.footer a {
+    color: var(--sky-bright);
+    text-decoration: none;
+}
+
+/* ERRORS */
+.errorlist {
+    color: var(--error-red);
+    font-size: 12px;
+    margin-top: 5px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="bg-scene">
+    <div class="grid-lines"></div>
+</div>
+
+<div class="wrapper">
+    <div class="card">
+
+        <div class="brand">
+            <div class="brand-icon">🏥</div>
+            <div class="brand-name">GYNAPTIX</div>
+            <div class="brand-tagline">Healthcare Automation Platform</div>
+        </div>
+
+        <div class="divider">CREATE ACCOUNT</div>
+
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Register →</button>
+        </form>
+
+        <div class="footer">
+            Already registered? <a href="/login/">Login</a>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,31 @@
+<h2>Doctor Dashboard</h2>
+
+<p>Welcome, {{ doctor.user.username }}</p>
+<p>Specialization: {{ doctor.specialization }}</p>
+
+<hr>
+
+<h3>Your Reports</h3>
+
+{% if reports %}
+
+
+
+<table border="1">
+    <tr>
+        <th>Patient</th>
+        <th>Title</th>
+        <th>Date</th>
+    </tr>
+
+    {% for r in reports %}
+    <tr>
+        <td>{{ r.patient.name }}</td>
+        <td>{{ r.title }}</td>
+        <td>{{ r.created_at }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p>No reports found</p>
+{% endif %}

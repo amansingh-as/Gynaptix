@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gynaptix - AI Healthcare Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+<style>
+:root {
+  --bg-deep: #020d1a;
+  --bg-mid: #041528;
+  --bg-card: rgba(4, 28, 55, 0.85);
+  --accent: #00d4ff;
+  --accent2: #0066cc;
+  --accent3: #00ff9d;
+  --text: #e8f4ff;
+  --text-dim: #7ab3d4;
+  --border: rgba(0, 212, 255, 0.18);
+  --glow: 0 0 30px rgba(0,212,255,0.25);
+  --red: #ff4b6e;
+  --green: #00ff9d;
+  --font-head: 'Outfit', sans-serif;
+  --font-body: 'Space Grotesk', sans-serif;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg-deep);
+  color: var(--text);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+  cursor: default;
+}
+
+/* ── ANIMATED BG ── */
+.bg-canvas {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background: radial-gradient(ellipse 80% 60% at 20% 10%, rgba(0,102,204,0.18) 0%, transparent 60%),
+              radial-gradient(ellipse 60% 40% at 80% 80%, rgba(0,212,255,0.10) 0%, transparent 55%),
+              linear-gradient(180deg, #020d1a 0%, #041528 60%, #020d1a 100%);
+}
+
+.bg-grid {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(0,212,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+  animation: gridShift 20s linear infinite;
+}
+@keyframes gridShift { 0%{background-position:0 0;} 100%{background-position:60px 60px;} }
+
+/* Floating particles */
+.particles { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.particle {
+  position: absolute; border-radius: 50%;
+  background: rgba(0,212,255,0.5);
+  animation: floatUp linear infinite;
+}
+@keyframes floatUp {
+  0%   { transform: translateY(110vh) scale(0); opacity: 0; }
+  10%  { opacity: 0.6; }
+  90%  { opacity: 0.3; }
+  100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
+}
+
+/* ── ECG LINE ── */
+.ecg-bar {
+  position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 200;
+  overflow: hidden;
+}
+.ecg-bar::after {
+  content: '';
+  display: block; width: 200%; height: 100%;
+  background: linear-gradient(90deg,
+    transparent 0%, var(--accent) 48%, #fff 50%, var(--accent) 52%, transparent 100%);
+  animation: ecgScan 3s linear infinite;
+}
+@keyframes ecgScan { 0%{transform:translateX(-100%);} 100%{transform:translateX(50%);} }
+
+/* ── HEADER ── */
+header {
+  position: sticky; top: 0; z-index: 100;
+  padding: 16px 60px;
+  display: flex; justify-content: space-between; align-items: center;
+  background: rgba(2,13,26,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+
+.logo {
+  font-family: var(--font-head);
+  font-size: 26px; font-weight: 800;
+  letter-spacing: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent3));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  animation: logoPulse 3s ease-in-out infinite;
+}
+@keyframes logoPulse {
+  0%,100% { filter: drop-shadow(0 0 6px rgba(0,212,255,0.5)); }
+  50% { filter: drop-shadow(0 0 18px rgba(0,255,157,0.7)); }
+}
+
+.nav-links { display: flex; align-items: center; gap: 8px; }
+
+.nav-links a {
+  text-decoration: none;
+  padding: 9px 20px;
+  border-radius: 8px;
+  font-family: var(--font-head);
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+
+.nav-btn-ghost {
+  border: 1px solid var(--accent);
+  color: var(--accent);
+}
+.nav-btn-ghost:hover { background: var(--accent); color: var(--bg-deep); }
+
+.nav-btn-fill {
+  background: linear-gradient(135deg, var(--accent2), var(--accent));
+  color: var(--bg-deep);
+}
+.nav-btn-fill:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(0,212,255,0.4); }
+
+/* ── HERO ── */
+.hero {
+  position: relative; z-index: 1;
+  min-height: 94vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center;
+  padding: 80px 20px 60px;
+  overflow: hidden;
+}
+
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 7px 18px;
+  border: 1px solid rgba(0,255,157,0.4);
+  border-radius: 50px;
+  font-size: 12px; font-weight: 600; letter-spacing: 2px;
+  color: var(--accent3);
+  background: rgba(0,255,157,0.07);
+  margin-bottom: 28px;
+  animation: fadeSlideUp 0.8s ease both;
+}
+.badge-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--accent3);
+  animation: blink 1.5s infinite;
+}
+@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.2;} }
+
+.hero h1 {
+  font-family: var(--font-head);
+  font-size: clamp(52px, 8vw, 96px);
+  font-weight: 800; line-height: 1.0;
+  letter-spacing: -2px;
+  animation: fadeSlideUp 1s 0.2s ease both;
+}
+
+.hero h1 .gyn { color: var(--accent); }
+.hero h1 .aptix { color: white; }
+
+.hero-tagline {
+  font-size: clamp(16px, 2vw, 20px);
+  color: var(--text-dim);
+  max-width: 680px; line-height: 1.7;
+  margin: 20px auto 0;
+  animation: fadeSlideUp 1s 0.4s ease both;
+}
+
+.hero-actions {
+  display: flex; gap: 14px; margin-top: 40px; flex-wrap: wrap; justify-content: center;
+  animation: fadeSlideUp 1s 0.6s ease both;
+}
+
+.btn-primary {
+  padding: 14px 32px;
+  background: linear-gradient(135deg, var(--accent2), var(--accent));
+  color: var(--bg-deep);
+  font-family: var(--font-head); font-weight: 700; font-size: 15px;
+  border-radius: 10px; text-decoration: none;
+  transition: all 0.3s;
+  box-shadow: 0 4px 24px rgba(0,212,255,0.3);
+}
+.btn-primary:hover { transform: translateY(-3px); box-shadow: 0 8px 36px rgba(0,212,255,0.5); }
+
+.btn-secondary {
+  padding: 14px 32px;
+  border: 1px solid var(--border);
+  color: var(--text); background: rgba(255,255,255,0.04);
+  font-family: var(--font-head); font-weight: 600; font-size: 15px;
+  border-radius: 10px; text-decoration: none;
+  transition: all 0.3s;
+  backdrop-filter: blur(8px);
+}
+.btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ECG animated graphic */
+.ecg-graphic {
+  position: absolute; bottom: 60px; left: 0; right: 0;
+  height: 70px; overflow: hidden; opacity: 0.35;
+}
+.ecg-path {
+  width: 200%; height: 100%;
+  animation: ecgMove 4s linear infinite;
+}
+@keyframes ecgMove { 0%{transform:translateX(0);} 100%{transform:translateX(-50%);} }
+
+/* Floating orbs */
+.orb {
+  position: absolute; border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,212,255,0.25), transparent 70%);
+  pointer-events: none;
+  animation: orbFloat ease-in-out infinite;
+}
+.orb1 { width:400px;height:400px; top:-100px;left:-100px; animation-duration:8s; }
+.orb2 { width:300px;height:300px; bottom:100px;right:-80px; animation-duration:11s; animation-delay:-4s; }
+@keyframes orbFloat {
+  0%,100%{transform:translate(0,0) scale(1);}
+  50%{transform:translate(30px,-20px) scale(1.08);}
+}
+
+/* ── STATS STRIP ── */
+.stats-strip {
+  position: relative; z-index: 1;
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 1px; background: var(--border);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.stat-cell {
+  background: rgba(4,21,40,0.9);
+  padding: 28px 24px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  transition: background 0.3s;
+}
+.stat-cell:hover { background: rgba(0,212,255,0.07); }
+
+.stat-num {
+  font-family: var(--font-head); font-size: 40px; font-weight: 800;
+  background: linear-gradient(135deg, var(--accent), var(--accent3));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  line-height: 1;
+}
+.stat-label { font-size: 12px; color: var(--text-dim); margin-top: 6px; letter-spacing: 1.5px; text-transform: uppercase; }
+
+/* ── SECTION WRAPPER ── */
+section { position: relative; z-index: 1; }
+.section-inner { max-width: 1200px; margin: 0 auto; padding: 80px 40px; }
+
+.section-label {
+  font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--accent3); font-weight: 600; margin-bottom: 10px;
+}
+.section-title {
+  font-family: var(--font-head); font-size: clamp(28px, 4vw, 48px);
+  font-weight: 800; line-height: 1.1;
+  margin-bottom: 16px;
+}
+.section-sub { color: var(--text-dim); max-width: 560px; line-height: 1.7; margin-bottom: 50px; }
+
+/* ── FEATURE CARDS ── */
+.features-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+  gap: 20px;
+}
+
+.feat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px;
+  backdrop-filter: blur(12px);
+  transition: all 0.4s;
+  position: relative; overflow: hidden;
+}
+.feat-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  transform: translateX(-100%); transition: transform 0.5s;
+}
+.feat-card:hover::before { transform: translateX(0); }
+.feat-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(0,212,255,0.4);
+  box-shadow: var(--glow);
+}
+
+.feat-icon {
+  width: 52px; height: 52px; border-radius: 14px;
+  background: rgba(0,212,255,0.1);
+  border: 1px solid rgba(0,212,255,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; margin-bottom: 18px;
+}
+.feat-card h3 { font-family: var(--font-head); font-size: 17px; font-weight: 700; color: var(--accent); margin-bottom: 8px; }
+.feat-card p { font-size: 14px; color: var(--text-dim); line-height: 1.65; }
+
+/* ── DOCTORS SECTION ── */
+.doctors-bg { background: linear-gradient(180deg, rgba(0,51,102,0.12) 0%, transparent 100%); }
+
+.doctors-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
+}
+
+.doctor-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 28px 20px;
+  text-align: center;
+  backdrop-filter: blur(12px);
+  transition: all 0.4s;
+  position: relative; overflow: hidden;
+}
+.doctor-card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(0,212,255,0.5);
+  box-shadow: 0 20px 60px rgba(0,212,255,0.15);
+}
+
+.doctor-avatar {
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent2), var(--accent));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 32px;
+  margin: 0 auto 16px;
+  box-shadow: 0 0 0 3px rgba(0,212,255,0.2), 0 0 0 6px rgba(0,212,255,0.07);
+  animation: avatarPulse 3s ease-in-out infinite;
+}
+@keyframes avatarPulse {
+  0%,100%{ box-shadow: 0 0 0 3px rgba(0,212,255,0.2), 0 0 0 6px rgba(0,212,255,0.07); }
+  50%{ box-shadow: 0 0 0 4px rgba(0,212,255,0.35), 0 0 0 8px rgba(0,212,255,0.12); }
+}
+
+.doctor-name { font-family: var(--font-head); font-weight: 700; font-size: 16px; margin-bottom: 4px; }
+.doctor-spec {
+  font-size: 12px; font-weight: 600; letter-spacing: 1.5px;
+  color: var(--accent); text-transform: uppercase; margin-bottom: 14px;
+}
+.doctor-rating { display: flex; align-items: center; justify-content: center; gap: 4px; }
+.stars { color: #ffc94d; font-size: 13px; }
+.rating-num { font-size: 13px; color: var(--text-dim); }
+
+.available-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  margin-top: 12px; padding: 4px 12px;
+  border-radius: 20px;
+  background: rgba(0,255,157,0.1);
+  border: 1px solid rgba(0,255,157,0.3);
+  font-size: 11px; color: var(--accent3); font-weight: 600;
+}
+
+/* ── CHARTS SECTION ── */
+.charts-section { background: rgba(0,0,0,0.15); }
+
+.charts-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.chart-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px; padding: 28px;
+  backdrop-filter: blur(12px);
+  transition: border-color 0.3s;
+}
+.chart-card:hover { border-color: rgba(0,212,255,0.4); }
+
+.chart-title {
+  font-family: var(--font-head); font-weight: 700; font-size: 15px;
+  margin-bottom: 6px; color: var(--text);
+}
+.chart-sub { font-size: 12px; color: var(--text-dim); margin-bottom: 20px; }
+.chart-wrap { position: relative; height: 220px; }
+
+/* ── HOW IT WORKS ── */
+.how-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0;
+  position: relative;
+}
+.how-grid::before {
+  content: '';
+  position: absolute; top: 40px; left: 10%; right: 10%; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), var(--accent), var(--border), transparent);
+}
+
+.how-step {
+  text-align: center; padding: 30px 20px;
+  position: relative; z-index: 1;
+}
+.step-num {
+  width: 56px; height: 56px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent2), var(--accent));
+  color: var(--bg-deep); font-family: var(--font-head); font-weight: 800; font-size: 20px;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 18px;
+  box-shadow: 0 0 30px rgba(0,212,255,0.3);
+}
+.how-step h4 { font-family: var(--font-head); font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+.how-step p { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
+
+/* ── ABOUT ── */
+.about-inner {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;
+}
+@media(max-width:768px){ .about-inner { grid-template-columns:1fr; } }
+
+.about-visual {
+  position: relative; height: 320px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(0,51,102,0.6), rgba(0,212,255,0.1));
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 80px;
+  overflow: hidden;
+}
+.about-visual::before {
+  content: '';
+  position: absolute; inset: -50%;
+  background: conic-gradient(from 0deg, transparent, rgba(0,212,255,0.1), transparent);
+  animation: spin 10s linear infinite;
+}
+@keyframes spin { 100%{transform:rotate(360deg);} }
+
+.about-pill {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 8px 20px 8px 8px;
+  background: rgba(0,255,157,0.08);
+  border: 1px solid rgba(0,255,157,0.25);
+  border-radius: 50px; font-size: 13px;
+  color: var(--accent3); margin-bottom: 20px;
+}
+.about-pill span { background: var(--accent3); color: #000; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+
+.about-text h2 { font-family: var(--font-head); font-size: 36px; font-weight: 800; line-height: 1.2; margin-bottom: 16px; }
+.about-text p { color: var(--text-dim); line-height: 1.75; font-size: 15px; }
+
+/* ── CHATBOT ── */
+.chatbot-btn {
+  position: fixed; bottom: 28px; right: 28px; z-index: 999;
+  background: linear-gradient(135deg, var(--accent2), var(--accent));
+  color: var(--bg-deep);
+  padding: 14px 22px;
+  border-radius: 50px;
+  font-family: var(--font-head); font-weight: 700; font-size: 14px;
+  text-decoration: none;
+  box-shadow: 0 4px 30px rgba(0,212,255,0.45);
+  animation: chatPulse 2s ease-in-out infinite;
+  display: flex; align-items: center; gap: 8px;
+}
+.chatbot-btn:hover { transform: scale(1.06); }
+@keyframes chatPulse {
+  0%,100%{ box-shadow: 0 4px 30px rgba(0,212,255,0.45); }
+  50%{ box-shadow: 0 4px 50px rgba(0,212,255,0.75); }
+}
+
+/* ── FOOTER ── */
+footer {
+  position: relative; z-index: 1;
+  background: rgba(0,0,0,0.5);
+  border-top: 1px solid var(--border);
+  text-align: center; padding: 28px;
+  font-size: 13px; color: var(--text-dim);
+}
+footer strong { color: var(--accent); }
+
+/* Divider */
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  position: relative; z-index: 1;
+}
+
+/* ANIMATIONS */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.reveal {
+  opacity: 0; transform: translateY(28px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible { opacity: 1; transform: none; }
+
+/* Responsive */
+@media(max-width:900px){
+  header { padding: 14px 24px; }
+  .stats-strip { grid-template-columns: repeat(2, 1fr); }
+  .section-inner { padding: 60px 24px; }
+  .how-grid::before { display: none; }
+}
+@media(max-width:600px){
+  .stats-strip { grid-template-columns: 1fr 1fr; }
+  .hero h1 { font-size: 46px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── BACKGROUND LAYERS ── -->
+<div class="bg-canvas"></div>
+<div class="bg-grid"></div>
+<div class="particles" id="particles"></div>
+<div class="ecg-bar"></div>
+
+<!-- ── HEADER ── -->
+<header>
+  <div class="logo">GYNAPTIX</div>
+  <nav class="nav-links">
+    <a href="#features" class="nav-btn-ghost" style="border:none;color:var(--text-dim);font-size:14px;">Features</a>
+    <a href="#doctors" class="nav-btn-ghost" style="border:none;color:var(--text-dim);font-size:14px;">Doctors</a>
+    <a href="#about" class="nav-btn-ghost" style="border:none;color:var(--text-dim);font-size:14px;">About</a>
+    <a href="{% url 'login' %}" class="nav-btn-ghost">Login</a>
+    <a href="{% url 'register' %}" class="nav-btn-fill">Register</a>
+  </nav>
+</header>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+
+  <div class="hero-badge">
+    <span class="badge-dot"></span>
+    AI-POWERED · HEALTHCARE · AUTOMATION
+  </div>
+
+  <!-- Book Appointment stays on top per original logic -->
+  <a href="{% url 'appointment' %}" class="btn-primary" style="margin-bottom:32px;">📅 Book Appointment</a>
+
+  <h1><span class="gyn">Gyn</span><span class="aptix">aptix</span></h1>
+
+  <p class="hero-tagline">
+    Next-generation AI-powered platform for intelligent patient record management, seamless hospital workflow automation, and real-time clinical support.
+  </p>
+
+  <div class="hero-actions">
+    <a href="{% url 'login' %}" class="btn-primary">Get Started Free</a>
+    <a href="#features" class="btn-secondary">Explore Features →</a>
+  </div>
+
+  <!-- ECG decoration -->
+  <div class="ecg-graphic">
+    <svg class="ecg-path" viewBox="0 0 1200 70" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <polyline
+        points="0,35 80,35 100,35 110,10 120,60 130,5 140,65 150,35 200,35 280,35 300,35 310,10 320,60 330,5 340,65 350,35 400,35 480,35 500,35 510,10 520,60 530,5 540,65 550,35 600,35 680,35 700,35 710,10 720,60 730,5 740,65 750,35 800,35 880,35 900,35 910,10 920,60 930,5 940,65 950,35 1000,35 1080,35 1100,35 1110,10 1120,60 1130,5 1140,65 1150,35 1200,35"
+        stroke="url(#ecgGrad)" stroke-width="2" fill="none"/>
+      <defs>
+        <linearGradient id="ecgGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#00d4ff" stop-opacity="0"/>
+          <stop offset="40%" stop-color="#00d4ff" stop-opacity="1"/>
+          <stop offset="60%" stop-color="#00ff9d" stop-opacity="1"/>
+          <stop offset="100%" stop-color="#00ff9d" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+    </svg>
+  </div>
+</section>
+
+<!-- ── STATS STRIP ── -->
+<div class="stats-strip">
+  <div class="stat-cell reveal">
+    <div class="stat-num" data-target="5000">0</div>
+    <div class="stat-label">Patients Managed</div>
+  </div>
+  <div class="stat-cell reveal" style="transition-delay:0.1s">
+    <div class="stat-num" data-target="120">0</div>
+    <div class="stat-label">Doctors Onboard</div>
+  </div>
+  <div class="stat-cell reveal" style="transition-delay:0.2s">
+    <div class="stat-num" data-target="99">0</div>
+    <div class="stat-label">% Uptime</div>
+  </div>
+  <div class="stat-cell reveal" style="transition-delay:0.3s">
+    <div class="stat-num" data-target="24">0</div>
+    <div class="stat-label">24/7 AI Support</div>
+  </div>
+</div>
+
+<!-- ── FEATURES ── -->
+<section id="features">
+  <div class="section-inner">
+    <p class="section-label reveal">Core Capabilities</p>
+    <h2 class="section-title reveal">Everything a Modern<br>Hospital Needs</h2>
+    <p class="section-sub reveal">Built for patients, doctors, staff and admins — all in one secure platform.</p>
+
+    <div class="features-grid">
+      <div class="feat-card reveal">
+        <div class="feat-icon">🏥</div>
+        <h3>Smart Patient Management</h3>
+        <p>Secure storage and instant retrieval of medical records, history, and visit logs for every patient.</p>
+      </div>
+      <div class="feat-card reveal" style="transition-delay:0.1s">
+        <div class="feat-icon">🤖</div>
+        <h3>AI Chatbot Support</h3>
+        <p>24/7 intelligent assistant guides patients and staff through queries, navigation, and basic care advice.</p>
+      </div>
+      <div class="feat-card reveal" style="transition-delay:0.15s">
+        <div class="feat-icon">🛡️</div>
+        <h3>Admin Control Panel</h3>
+        <p>Full control over user management, permissions, data operations, and hospital-wide reporting.</p>
+      </div>
+      <div class="feat-card reveal" style="transition-delay:0.2s">
+        <div class="feat-icon">🔐</div>
+        <h3>Role-Based Access</h3>
+        <p>Dedicated dashboards for Patients, Doctors, Staff, and Admins — each with scoped, secure permissions.</p>
+      </div>
+      <div class="feat-card reveal" style="transition-delay:0.25s">
+        <div class="feat-icon">📊</div>
+        <h3>Analytics & Reports</h3>
+        <p>Visual insights into patient trends, appointment loads, and department performance in real time.</p>
+      </div>
+      <div class="feat-card reveal" style="transition-delay:0.3s">
+        <div class="feat-icon">☁️</div>
+        <h3>Cloud-Ready Architecture</h3>
+        <p>Starts local on XAMPP/WAMP, built to scale across multiple hospitals via secure cloud migration.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── DOCTORS ── -->
+<section id="doctors" class="doctors-bg">
+  <div class="section-inner">
+    <p class="section-label reveal">Our Medical Team</p>
+    <h2 class="section-title reveal">Meet Our Specialists</h2>
+    <p class="section-sub reveal">Experienced professionals committed to delivering the highest standard of patient care.</p>
+
+    <div class="doctors-grid">
+      <div class="doctor-card reveal">
+        <div class="doctor-avatar">👨‍⚕️</div>
+        <div class="doctor-name">Dr. Rajesh Sharma</div>
+        <div class="doctor-spec">Cardiologist</div>
+        <div class="doctor-rating">
+          <span class="stars">★★★★★</span>
+          <span class="rating-num">4.9</span>
+        </div>
+        <div class="available-badge"><span class="badge-dot"></span> Available Today</div>
+      </div>
+      <div class="doctor-card reveal" style="transition-delay:0.1s">
+        <div class="doctor-avatar">👩‍⚕️</div>
+        <div class="doctor-name">Dr. Priya Verma</div>
+        <div class="doctor-spec">Gynaecologist</div>
+        <div class="doctor-rating">
+          <span class="stars">★★★★★</span>
+          <span class="rating-num">4.8</span>
+        </div>
+        <div class="available-badge"><span class="badge-dot"></span> Available Today</div>
+      </div>
+      <div class="doctor-card reveal" style="transition-delay:0.15s">
+        <div class="doctor-avatar">👨‍⚕️</div>
+        <div class="doctor-name">Dr. Amit Tiwari</div>
+        <div class="doctor-spec">Neurologist</div>
+        <div class="doctor-rating">
+          <span class="stars">★★★★☆</span>
+          <span class="rating-num">4.7</span>
+        </div>
+        <div class="available-badge"><span class="badge-dot"></span> Available Today</div>
+      </div>
+      <div class="doctor-card reveal" style="transition-delay:0.2s">
+        <div class="doctor-avatar">👩‍⚕️</div>
+        <div class="doctor-name">Dr. Neha Singh</div>
+        <div class="doctor-spec">Paediatrician</div>
+        <div class="doctor-rating">
+          <span class="stars">★★★★★</span>
+          <span class="rating-num">4.9</span>
+        </div>
+        <div class="available-badge"><span class="badge-dot"></span> Available Today</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── CHARTS ── -->
+<section class="charts-section">
+  <div class="section-inner">
+    <p class="section-label reveal">Live Analytics</p>
+    <h2 class="section-title reveal">Platform Health at a Glance</h2>
+    <p class="section-sub reveal">Real-time data visualizations across appointments, departments, and patient activity.</p>
+
+    <div class="charts-grid">
+      <div class="chart-card reveal">
+        <div class="chart-title">Monthly Appointments</div>
+        <div class="chart-sub">Patient visit trends over the year</div>
+        <div class="chart-wrap"><canvas id="appointmentsChart"></canvas></div>
+      </div>
+      <div class="chart-card reveal" style="transition-delay:0.1s">
+        <div class="chart-title">Department Load</div>
+        <div class="chart-sub">Patient distribution by department</div>
+        <div class="chart-wrap"><canvas id="departmentChart"></canvas></div>
+      </div>
+      <div class="chart-card reveal" style="transition-delay:0.2s">
+        <div class="chart-title">Weekly Activity</div>
+        <div class="chart-sub">New registrations vs appointments</div>
+        <div class="chart-wrap"><canvas id="activityChart"></canvas></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── HOW IT WORKS ── -->
+<section>
+  <div class="section-inner" style="text-align:center;">
+    <p class="section-label reveal">Workflow</p>
+    <h2 class="section-title reveal">How Gynaptix Works</h2>
+    <p class="section-sub reveal" style="margin:0 auto 50px;">Four simple steps to a fully digitized hospital experience.</p>
+
+    <div class="how-grid">
+      <div class="how-step reveal">
+        <div class="step-num">1</div>
+        <h4>Register</h4>
+        <p>Patient, doctor, or staff create a secure role-based account in minutes.</p>
+      </div>
+      <div class="how-step reveal" style="transition-delay:0.1s">
+        <div class="step-num">2</div>
+        <h4>Book Appointment</h4>
+        <p>Select a doctor, choose a slot, and confirm — instantly notified.</p>
+      </div>
+      <div class="how-step reveal" style="transition-delay:0.2s">
+        <div class="step-num">3</div>
+        <h4>Consult & Record</h4>
+        <p>Doctors update diagnosis and medical records in real time during consultation.</p>
+      </div>
+      <div class="how-step reveal" style="transition-delay:0.3s">
+        <div class="step-num">4</div>
+        <h4>Track & Report</h4>
+        <p>Patients view records; admins generate reports and monitor platform health.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── ABOUT ── -->
+<section id="about">
+  <div class="section-inner">
+    <div class="about-inner">
+      <div class="about-visual reveal">🏥</div>
+      <div class="about-text reveal" style="transition-delay:0.15s">
+        <div class="about-pill"><span>Gynaptix</span>Hospital Name</div>
+        <h2>Built with Passion<br>for Healthcare</h2>
+        <p style="margin-bottom:16px;">
+          Gynaptix was developed with a clear mission: eliminate paper-based inefficiencies and bring intelligent automation to hospitals and clinics of all sizes.
+        </p>
+        <p>
+          From role-based access to AI-powered chatbot support, every feature is crafted to reduce administrative burden and improve patient outcomes. The platform is ready for local deployment today and designed for cloud scale tomorrow.
+        </p>
+        <a href="{% url 'login' %}" class="btn-primary" style="display:inline-block;margin-top:28px;">Start Using Gynaptix</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <strong>© 2026 GYNAPTIX</strong> — AI-Powered Healthcare Automation Platform &nbsp;·&nbsp;
+  Developed by <strong>Aman & Team</strong>, &nbsp;·&nbsp;
+  
+</footer>
+
+<!-- ── CHATBOT BTN (original logic) ── -->
+<a href="/chatbot/" class="chatbot-btn">💬 Need Help?</a>
+
+<!-- ── SCRIPTS ── -->
+<script>
+/* ─── PARTICLES ─── */
+(function(){
+  const c = document.getElementById('particles');
+  for(let i=0;i<28;i++){
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const s = Math.random()*4+2;
+    p.style.cssText = `
+      width:${s}px;height:${s}px;
+      left:${Math.random()*100}%;
+      animation-duration:${Math.random()*15+10}s;
+      animation-delay:${Math.random()*-20}s;
+      opacity:${Math.random()*0.5+0.1};
+    `;
+    c.appendChild(p);
+  }
+})();
+
+/* ─── SCROLL REVEAL ─── */
+const observer = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
+},{threshold:0.12});
+document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+
+/* ─── COUNTER ANIMATION ─── */
+function animateCounter(el){
+  const target = +el.dataset.target;
+  const dur = 1800, start = performance.now();
+  function step(now){
+    const p = Math.min((now-start)/dur, 1);
+    const ease = 1-Math.pow(1-p,3);
+    el.textContent = Math.floor(ease*target) + (target===99?'%':'+');
+    if(p<1) requestAnimationFrame(step);
+    else el.textContent = target + (target===99?'%':'+');
+  }
+  requestAnimationFrame(step);
+}
+const statsObserver = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.querySelectorAll('[data-target]').forEach(animateCounter);
+      statsObserver.unobserve(e.target);
+    }
+  });
+},{threshold:0.3});
+document.querySelectorAll('.stats-strip').forEach(el=>statsObserver.observe(el));
+
+/* ─── CHARTS ─── */
+const chartDefaults = {
+  color: '#7ab3d4',
+  borderColor: 'rgba(0,212,255,0.3)',
+  gridColor: 'rgba(0,212,255,0.07)',
+};
+
+// Chart 1 — Monthly Appointments (Line)
+new Chart(document.getElementById('appointmentsChart'), {
+  type: 'line',
+  data: {
+    labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+    datasets: [{
+      label: 'Appointments',
+      data: [120,145,178,210,196,230,255,240,280,310,295,330],
+      borderColor: '#00d4ff',
+      backgroundColor: 'rgba(0,212,255,0.08)',
+      borderWidth: 2,
+      pointBackgroundColor: '#00d4ff',
+      pointRadius: 4,
+      tension: 0.4,
+      fill: true,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { ticks:{color:'#7ab3d4',font:{size:11}}, grid:{color:chartDefaults.gridColor} },
+      y: { ticks:{color:'#7ab3d4',font:{size:11}}, grid:{color:chartDefaults.gridColor} }
+    }
+  }
+});
+
+// Chart 2 — Department (Doughnut)
+new Chart(document.getElementById('departmentChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Cardiology','Gynaecology','Neurology','Paediatrics','General'],
+    datasets: [{
+      data: [28,22,18,16,16],
+      backgroundColor: ['#00d4ff','#00ff9d','#0066cc','#ffc94d','#ff4b6e'],
+      borderColor: '#020d1a', borderWidth: 3,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position:'bottom', labels:{color:'#7ab3d4',font:{size:11},padding:12} }
+    },
+    cutout: '62%',
+  }
+});
+
+// Chart 3 — Weekly Activity (Bar)
+new Chart(document.getElementById('activityChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+    datasets: [
+      {
+        label: 'Registrations',
+        data: [18,24,22,30,28,15,10],
+        backgroundColor: 'rgba(0,102,204,0.75)',
+        borderRadius: 6,
+      },
+      {
+        label: 'Appointments',
+        data: [35,42,38,50,46,28,20],
+        backgroundColor: 'rgba(0,212,255,0.65)',
+        borderRadius: 6,
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { labels:{color:'#7ab3d4',font:{size:11}} }
+    },
+    scales: {
+      x: { ticks:{color:'#7ab3d4',font:{size:11}}, grid:{color:chartDefaults.gridColor} },
+      y: { ticks:{color:'#7ab3d4',font:{size:11}}, grid:{color:chartDefaults.gridColor} }
+    }
+  }
+});
+</script>
+
+</body>
+</html>
