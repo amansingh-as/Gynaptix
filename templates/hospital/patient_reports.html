@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <h3 class="mb-3">Reports of {{ patient.name }}</h3>
+
+    <a href="{% url 'patient_list' %}" class="btn btn-secondary mb-3">
+        ← Back to Patients
+    </a>
+
+    {% if reports %}
+    <table class="table table-bordered shadow">
+        <tr>
+            <th>Title</th>
+            <th>Doctor</th>
+            <th>File</th>
+            <th>Date</th>
+        </tr>
+
+        {% for r in reports %}
+        <tr>
+            <td>{{ r.title }}</td>
+            <td>{{ r.doctor.user.username }}</td>
+            <td>
+                <a href="{{ r.file.url }}" target="_blank" class="btn btn-sm btn-info">
+                    View
+                </a>
+            </td>
+            <td>{{ r.created_at|date:"d M Y" }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    {% else %}
+        <div class="alert alert-warning">
+            No reports available for this patient.
+        </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Booked Appointments - Gynaptix</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial;
+            background: linear-gradient(135deg, #061a33, #0b3a6e);
+            color: white;
+        }
+
+        /* WATERMARK */
+        body::before {
+            content: "GYNAPTIX";
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 120px;
+            font-weight: bold;
+            color: rgba(79, 195, 247, 0.07);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4fc3f7;
+            margin-top: 20px;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card {
+            width: 90%;
+            max-width: 900px;
+        }
+
+        .appointment {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(79, 195, 247, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            backdrop-filter: blur(8px);
+        }
+
+        .appointment h3 {
+            color: #4fc3f7;
+            margin-bottom: 10px;
+        }
+
+        .field {
+            margin: 5px 0;
+            color: #e3f2fd;
+        }
+
+        .label {
+            color: #81d4fa;
+            font-weight: bold;
+        }
+
+        .back-btn {
+            display: block;
+            width: 200px;
+            margin: 30px auto;
+            text-align: center;
+            padding: 10px;
+            background: #4fc3f7;
+            color: #001a33;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .back-btn:hover {
+            background: #81d4fa;
+        }
+
+        .empty {
+            text-align: center;
+            color: #cfe9ff;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>Booked Appointments</h1>
+<div style="text-align:center; margin:20px;">
+    <form method="GET" style="display:inline-block;">
+
+        <input type="text"
+               name="q"
+               placeholder="Search by name or phone..."
+               value="{{ query|default:'' }}"
+               style="padding:10px; width:250px; border-radius:8px; border:none; outline:none;">
+
+        <button type="submit"
+                style="padding:10px 15px; background:#4fc3f7; border:none; border-radius:8px; font-weight:bold;">
+            Search
+        </button>
+
+        <a href="{% url 'appointment_list' %}"
+           style="padding:10px 15px; background:#81d4fa; color:#001a33;
+           border-radius:8px; text-decoration:none; margin-left:5px; font-weight:bold;">
+            Clear
+        </a>
+
+    </form>
+</div>
+<div class="container">
+
+<div class="card">
+
+    {% if appointments %}
+
+        {% for a in appointments %}
+<div class="appointment">
+
+    <!-- SERIAL NUMBER -->
+    <h3>Appointment 0{{ forloop.counter }}</h3>
+
+    <div class="field"><span class="label">Name:</span> {{ a.name }}</div>
+
+    <div class="field"><span class="label">Age:</span> {{ a.age }}</div>
+    <div class="field"><span class="label">Phone:</span> {{ a.phone }}</div>
+
+    <div class="field">
+        <span class="label">Email:</span>
+        {% if a.email %} {{ a.email }} {% else %} Not provided {% endif %}
+    </div>
+
+    <div class="field">
+        <span class="label">Message:</span>
+        {% if a.message %} {{ a.message }} {% else %} No message {% endif %}
+    </div>
+
+    <div class="field">
+        <span class="label">Booked At:</span> {{ a.date }}
+    </div>
+
+</div>
+{% endfor %}
+    {% else %}
+        <div class="empty">No appointments booked yet.</div>
+    {% endif %}
+
+</div>
+
+</div>
+
+<a href="{% url 'admin_dashboard' %}" class="back-btn">Back to Dashboard</a>
+
+</body>
+</html>

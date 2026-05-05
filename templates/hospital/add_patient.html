@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-4">
+    <div class="card shadow-lg p-4">
+        
+        <h3 class="mb-4 text-primary">Add / Edit Patient</h3>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="row">
+
+                <!-- User -->
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Patient Name</label>
+                    {{ form.name }}
+                </div>
+
+                <!-- Age -->
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Age</label>
+                    {{ form.age }}
+                </div>
+
+                <!-- Gender -->
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Gender</label>
+                    {{ form.gender }}
+                </div>
+
+                <!-- Phone -->
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Phone</label>
+                    {{ form.phone }}
+                </div>
+
+                <!-- Address -->
+                <div class="col-md-12 mb-3">
+                    <label class="form-label">Address</label>
+                    {{ form.address }}
+                </div>
+
+                <!-- Medical History -->
+                <div class="col-md-12 mb-3">
+                    <label class="form-label">Medical History</label>
+                    {{ form.medical_history }}
+                </div>
+
+            </div>
+
+            <!-- Buttons -->
+            <div class="d-flex justify-content-between mt-3">
+                <a href="{% url 'patient_list' %}" class="btn btn-secondary">
+                ← Back to Patients
+                </a>
+                <button type="submit" class="btn btn-success">Save Patient</button>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}

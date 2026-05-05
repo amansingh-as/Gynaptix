@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Book Appointment - Gynaptix</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #061a33, #0b3a6e);
+            color: white;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* WATERMARK */
+        body::before {
+            content: "GYNAPTIX";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 120px;
+            font-weight: bold;
+            color: rgba(79, 195, 247, 0.08);
+            letter-spacing: 20px;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* MAIN HEADING */
+        .main-title {
+            text-align: center;
+            font-size: 40px;
+            font-weight: bold;
+            color: #4fc3f7;
+            margin-top: 30px;
+            letter-spacing: 2px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #cfe9ff;
+            margin-top: 5px;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            padding: 20px 0 60px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .form-box {
+            width: 420px;
+            background: rgba(255,255,255,0.08);
+            padding: 30px;
+            border-radius: 16px;
+            border: 1px solid rgba(79, 195, 247, 0.4);
+            box-shadow: 0 0 20px rgba(79, 195, 247, 0.15);
+            backdrop-filter: blur(10px);
+        }
+
+        h2 {
+            text-align: center;
+            color: #4fc3f7;
+            margin-bottom: 20px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: none;
+            outline: none;
+            background: rgba(255,255,255,0.9);
+            font-size: 14px;
+        }
+
+        textarea {
+            resize: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(90deg, #4fc3f7, #81d4fa);
+            border: none;
+            border-radius: 8px;
+            color: #001a33;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: scale(1.03);
+            background: linear-gradient(90deg, #81d4fa, #4fc3f7);
+        }
+
+        .success {
+            background: #00c853;
+            padding: 12px;
+            text-align: center;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .back {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            color: #4fc3f7;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .back:hover {
+            color: #81d4fa;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<!-- HEADING -->
+<div class="main-title">GYNAPTIX</div>
+<div class="subtitle">AI-Powered Healthcare Automation Platform</div>
+
+<div class="container">
+
+    <div class="form-box">
+
+        <h2>Book Appointment</h2>
+
+        {% if success %}
+            <div class="success">
+                ✅ Appointment Booked Successfully!
+            </div>
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+
+            {{ form.name }}
+            {{ form.age }}
+            {{ form.phone }}
+            {{ form.email }}
+            {{ form.message }}
+
+            <button type="submit">Book Now</button>
+        </form>
+
+        <a href="{% url 'home' %}" class="back">← Back to Home</a>
+
+    </div>
+
+</div>
+
+</body>
+</html>
